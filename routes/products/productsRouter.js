@@ -1,0 +1,27 @@
+const express = require('express');
+const productsQuery = require('./productsQuery')
+const productsRouter = express.Router();
+
+
+productsRouter.get('/', async (req, res, next) => {
+    try {
+        const result = await productsQuery.getAll();
+        res.json(result);
+    } catch (error) {
+        console.error('Error retrieving products:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+productsRouter.get('/:id', async (req, res, next) => {
+    try {
+        const result = await productsQuery.getOne(req.params.id);
+        res.json(result)
+    }
+    catch (e) {
+        console.error('error detected')
+        res.status(500)
+    }
+})
+
+module.exports = productsRouter;
