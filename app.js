@@ -3,8 +3,9 @@ const express = require('express');
 const session = require('express-session');
 const productsRouter = require('./routes/products/productsRouter');
 const accountsRouter = require('./routes/accounts/accountsRouter');
-const cartRouter = require('./routes/cart/cartRouter')
-const accountsQuery = require('./routes/accounts/accountsQuery')
+const cartRouter = require('./routes/cart/cartRouter');
+const orderRouter = require('./routes/cart/orderRouter');
+const accountsQuery = require('./routes/accounts/accountsQuery');
 const Passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy
 
@@ -58,6 +59,7 @@ app.use(express.json())
 app.use('/accounts', accountsRouter)
 app.use('/products', productsRouter)
 app.use('/cart', cartRouter)
+app.use('/orders', orderRouter)
 
 app.post('/login',
   Passport.authenticate('local', { failureRedirect: '/login' }),
