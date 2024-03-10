@@ -3,6 +3,17 @@ const productsQuery = require('./productsQuery')
 const productsRouter = express.Router();
 
 
+productsRouter.get('/category', async (req, res, next) => {
+    let category = req.query.category;
+    try {
+        const result = await productsQuery.getByCategory(category);
+        res.json(result)
+    }
+    catch (e) {
+        console.error('error in retrievla')
+        res.status(500).json({error: 'error'})
+    }
+})
 productsRouter.get('/', async (req, res, next) => {
     try {
         const result = await productsQuery.getAll();
@@ -23,5 +34,6 @@ productsRouter.get('/:id', async (req, res, next) => {
         res.status(500)
     }
 })
+
 
 module.exports = productsRouter;

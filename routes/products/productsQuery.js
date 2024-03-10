@@ -11,5 +11,10 @@ const getOne = async (id) => {
     const result = await db.query(query, [id])
     return result.rows[0]
 }
+const getByCategory = async (category) => {
+    const query = 'SELECT * FROM products WHERE category = $1';
+    const result = await db.query(query, [category]);
+    return result.rows
+}
 
-module.exports = {getAll, getOne};
+module.exports = {getAll, getOne, getByCategory};

@@ -28,5 +28,27 @@ accountsRouter.get('/', async (req, res, next) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 })
+accountsRouter.get('/:id', async (req, res, next) => {
+    try {
+        const result = await accountsQuery.getOneById(req.params.id);
+        res.json(result)
+    }
+    catch (e) {
+        console.error('error detected')
+        res.status(500)
+    }
+})
+accountsRouter.put('/:id', async (req, res, next) => {
+    const {username, email, password} = req.body
+    const {id} = req.params
+    try {
+        const result = await accountsQuery.changeInfo(id, username, email, password);
+        res.json(result)
+    }
+    catch (e) {
+        console.error('error detected')
+        res.status(500).json({error: 'request failed'})
+    }
+})
 
 module.exports = accountsRouter;
