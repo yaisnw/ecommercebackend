@@ -2,7 +2,7 @@ const express = require('express');
 const accountsQuery = require('./accountsQuery');
 const accountsRouter = express.Router();
 
-accountsRouter.post('/register', async (req, res, next) => {
+accountsRouter.post('/signup', async (req, res, next) => {
 
     const {username, email, password} = req.body;
 
