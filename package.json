@@ -16,6 +16,10 @@
     "passport-local": "^1.0.0",
     "pg": "^8.11.3"
   },
+  "scripts": {
+    "start": "nodemon app.js",
+    "build": "nodemon app.js"
+  },
   "devDependencies": {
     "nodemon": "^3.1.0"
   }
