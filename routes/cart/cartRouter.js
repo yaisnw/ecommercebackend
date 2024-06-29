@@ -6,8 +6,6 @@ const orderDetailQuery = require('./orderDetailQuery')
 const orderItemQuery = require('./orderItemQuery')
 const Passport = require('../../strategies')
 const cartRouter = express.Router()
-const Stripe = require('stripe');
-const stripe = Stripe(process.env.STRIPE_SECRET);
 
 cartRouter.get('/', async (req, res) => {
     try {
