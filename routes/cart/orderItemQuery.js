@@ -1,8 +1,8 @@
 const db = require("../../db");
 
 const createItem = async(data) => {
-    const query = 'INSERT INTO order_item (order_id, prod_id, quantity, price) VALUES ($1, $2, $3, $4) RETURNING *';
-    const result = await db.query(query, [data.order_id, data.prod_id, data.quantity, data.price])
+    const query = 'INSERT INTO order_item (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4) RETURNING *';
+    const result = await db.query(query, [data.order_id, data.product_id, data.quantity, data.price])
     return result.rows[0]
 }
 const deleteItem = async(id) => {

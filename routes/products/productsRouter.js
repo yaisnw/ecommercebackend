@@ -10,7 +10,7 @@ productsRouter.get('/category', async (req, res, next) => {
         res.json(result)
     }
     catch (e) {
-        console.error('error in retrievla')
+        console.error('error in retrieval')
         res.status(500).json({error: 'error'})
     }
 })

@@ -1,21 +1,33 @@
+require('dotenv').config()
 const express = require('express')
 const cartQuery = require('./cartQuery')
 const cartItemQuery = require('./cartItemQuery')
-const orderQuery = require('./orderQuery')
+const orderDetailQuery = require('./orderDetailQuery')
 const orderItemQuery = require('./orderItemQuery')
+const Passport = require('../../strategies')
 const cartRouter = express.Router()
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET);
 
 cartRouter.get('/', async (req, res) => {
     try {
         const cart = await cartQuery.getCart(req.user.id)
+        if (!cart) {
+            res.status(501).json({ msg: "no cart" })
+        }
         const items = await cartItemQuery.getItems(cart.id);
+        if (!items) {
+            res.status(502).json({ msg: "no items" })
+        }
         cart.items = items;
         res.status(200).json(cart)
     }
     catch (e) {
+        console.log(e)
         res.status(500).json({ msg: "NOT WORKING" })
     }
 })
+
 cartRouter.post('/', async (req, res) => {
     try {
         const newCart = await cartQuery.createCart(req.user.id)
@@ -25,19 +37,46 @@ cartRouter.post('/', async (req, res) => {
         res.status(500).json({ msg: "NUH UH" })
     }
 })
+
 cartRouter.post('/item', async (req, res) => {
+    // console.log("Request user:", req.user); // Log the user object
     try {
-        const cart = await cartQuery.getCart(req.user.id);
-        const cartItem = await cartItemQuery.createItem(cart.id, req.body)
-        res.json(cartItem)
+        if (!req.user || !req.user.id) {
+            return res.status(401)
+        }
+        
+        const { product_id, quantity } = req.body;
+        if (!product_id || !quantity) {
+            return res.status(400)
+        }
+
+        let cart = await cartQuery.getCart(req.user.id);
+
+        if (!cart) {
+            cart = await cartQuery.createCart(req.user.id);
+        }
+        const existingCartItem = await cartItemQuery.getExistingItem(product_id, cart.id);
+        if (existingCartItem) {
+            const updatedExistingCartItem = await cartItemQuery.updateExistingItem(quantity, product_id, cart.id)
+            return res.status(201).json(updatedExistingCartItem)
+        }
+        else {
+            const cartItem = await cartItemQuery.createItem(cart.id, product_id, quantity);
+            return res.status(201).json(cartItem)
+        }
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ msg: "Internal server error" });
     }
-    catch (e) {
-        res.status(500).json({ msg: "NUH UH" })
-    }
-})
+});
+
+
+
 cartRouter.put('/item/:id', async (req, res) => {
     try {
-        const updatedItem = await cartItemQuery.updateItem(req.params.id, req.body)
+        const product_id = req.params.id
+        const updatedItem = await cartItemQuery.updateItem(product_id, req.body.quantity)
         res.json(updatedItem)
     }
     catch (e) {
@@ -46,7 +85,7 @@ cartRouter.put('/item/:id', async (req, res) => {
 })
 cartRouter.delete('/item/:id', async (req, res) => {
     try {
-        await cartItemQuery.deleteItem(req.params.id)
+        await cartItemQuery.deleteItemByProduct(req.params.id)
         res.json({ msg: "Deleted" })
 
     }
@@ -57,19 +96,24 @@ cartRouter.delete('/item/:id', async (req, res) => {
 cartRouter.post('/checkout', async (req, res) => {
     try {
         const cart = await cartQuery.getCart(req.user.id);
-        const items = await cartItemQuery.getItems(cart.id)
+        const items = await cartItemQuery.getItems(cart.id);
         const total = items.reduce((total, current) => {
-            return total += (Number(current.price) * Number(current.quantity))
+            const price = Number(current.price.replace('$', ''));
+            return total + (price * Number(current.quantity));
         }, 0)
-        const order = await orderQuery.createOrder(req.user.id, total);
-    
 
-        order.items = await Promise.all(items.map(async(item) => { await orderItemQuery.createItem({order_id: order.id, price: item.price,quantity: item.quantity, prod_id: item.prod_id})}));
+        const order = await orderDetailQuery.createOrder(req.user.id, total);
 
-        res.json(order)
+        order.items = await Promise.all(items.map(async (item) => { return await orderItemQuery.createItem({ order_id: order.id, price: item.price, quantity: item.quantity, product_id: item.product_id }) }));
+
+
+        const deletedCartItems = await cartItemQuery.deleteItemByCart(cart.id);
+        const deletedCart = await cartQuery.deleteCart(req.user.id);
+
+        res.status(200).json({msg: "checked out!"})
     }
     catch (e) {
-        res.status(500).json({msg: "request error"})
+        res.status(500).json({ msg: "request error" })
     }
 })
 

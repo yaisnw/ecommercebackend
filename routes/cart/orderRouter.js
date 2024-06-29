@@ -1,5 +1,5 @@
 const express = require('express')
-const orderQuery = require('./orderQuery')
+const orderQuery = require('./orderDetailQuery')
 const orderRouter = express.Router()
 
 orderRouter.get('/', async(req, res) => {
