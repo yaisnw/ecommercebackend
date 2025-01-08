@@ -15,39 +15,23 @@ const PORT = process.env.PORT || 4000;
 
 app.use(Passport.initialize());
 app.use(express.json())
-// cors
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://ecommerceclient-15f2.onrender.com');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
-// oauth
-// app.get('/auth/google', Passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// app.get('/auth/google/callback',
-//   Passport.authenticate('google', { failureRedirect: 'http://localhost:3000/login' }),
-//   (req, res) => {
-//     res.redirect('http://localhost:3000/products');
-//   }
-// );
+const cors = require('cors');
 
-// app.get('/auth/facebook', Passport.authenticate('facebook', { scope: ['email'] }));
-
-// app.get('/auth/facebook/callback',
-//   Passport.authenticate('facebook', { failureRedirect: 'http://localhost:3000/login' }), (req, res) => {
-//     res.redirect('http://localhost:3000/products');
-//   });
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 
 app.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-
+    if (!username || !password) {
+      return res.status(400).json({ msg: 'Username and password are required.' });
+    }
     const user = await accountsQuery.getOneByUsername(username);
 
     if (!user) {
@@ -57,7 +41,7 @@ app.post('/login', async (req, res) => {
     const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {
-      return res.status(402).json({ msg: 'Password incorrect' });
+      return res.status(402).json({ msg: 'Password is incorrect' });
     }
 
     const payload = { id: user.id, username: user.username };
@@ -68,8 +52,6 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ msg: 'Internal server error' });
   }
 });
-
-
 
 app.use('/accounts', accountsRouter)
 app.use('/products', Passport.authenticate('jwt', { session: false }), productsRouter)

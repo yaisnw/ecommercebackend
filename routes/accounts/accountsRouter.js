@@ -5,12 +5,15 @@ const bcrypt = require("bcryptjs");
 
 accountsRouter.post("/signup", async (req, res, next) => {
   const { username, password } = req.body
+  if (!username || !password) {
+    return res.status(400).json({ msg: 'Username and password are required.' });
+  }
   const salt = await bcrypt.genSalt(10);
 
-  // Hash the password with salt
   const hashedPassword = await bcrypt.hash(password, salt);
 
   const takenUsername = await accountsQuery.getOneByUsername(username)
+
   if (takenUsername) {
     res.status(409).json({ msg: "this username is taken" })
   }
@@ -28,6 +31,7 @@ accountsRouter.post("/signup", async (req, res, next) => {
     }
   }
 });
+
 accountsRouter.get("/", async (req, res, next) => {
   try {
     const result = await accountsQuery.getAll();
