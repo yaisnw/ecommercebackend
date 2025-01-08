@@ -16,5 +16,4 @@ const getByCategory = async (category, id) => {
     const result = await db.query(query, [category, id]);
     return result.rows
 }
-
 module.exports = {getAll, getOne, getByCategory};
