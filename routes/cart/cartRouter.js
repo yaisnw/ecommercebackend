@@ -14,15 +14,14 @@ cartRouter.get('/', async (req, res) => {
             return res.status(501).json({ msg: "no cart" });
         }
         const items = await cartItemQuery.getItems(cart.id);
-        console.log(cart);
+        // console.log(cart);
         if (!items) {
             return res.status(502).json({ msg: "no items" });
         }
         cart.items = items;
         return res.status(200).json(cart);
     } catch (e) {
-        console.log(e);
-        return res.status(500).json({ msg: "NOT WORKING" });
+        return res.status(500).json(e);
     }
 });
 
@@ -31,7 +30,7 @@ cartRouter.post('/', async (req, res) => {
         const newCart = await cartQuery.createCart(req.user.id);
         return res.json(newCart);
     } catch (e) {
-        return res.status(500).json({ msg: "NUH UH" });
+        return res.status(500).json(e);
     }
 });
 
@@ -60,8 +59,7 @@ cartRouter.post('/item', async (req, res) => {
             return res.status(201).json(cartItem);
         }
     } catch (e) {
-        console.error(e);
-        return res.status(500).json({ msg: "Internal server error" });
+        return res.status(500).json(e);
     }
 });
 
@@ -80,7 +78,7 @@ cartRouter.delete('/item/:id', async (req, res) => {
         await cartItemQuery.deleteItemByProduct(req.params.id);
         return res.json({ msg: "Deleted" });
     } catch (e) {
-        return res.status(500).json({ msg: "request error" });
+        return res.status(500).json(e);
     }
 });
 
@@ -109,7 +107,7 @@ cartRouter.post('/checkout', async (req, res) => {
 
         return res.status(200).json({ msg: "checked out!" });
     } catch (e) {
-        return res.status(500).json({ msg: "request error" });
+        return res.status(500).json(e);
     }
 });
 

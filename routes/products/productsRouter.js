@@ -10,7 +10,7 @@ productsRouter.get('/category', async (req, res, next) => {
         return res.json(result);
     } catch (e) {
         console.error('Error in retrieval:', e);
-        return res.status(500).json({ msg: 'Error' });
+        return res.status(500).json({ msg: 'Internal serverrror' });
     }
 });
 

@@ -7,7 +7,7 @@ orderRouter.get('/', async (req, res) => {
         const orders = await orderQuery.getOrders(req.user.id);
         return res.json(orders);
     } catch (e) {
-        return res.status(500).json({ msg: "Request error" });
+        return res.status(500).json({ msg: "Internal Server Error" });
     }
 });
 
@@ -16,7 +16,7 @@ orderRouter.get('/:id', async (req, res) => {
         const order = await orderQuery.findOrder(req.params.id);
         return res.json(order);
     } catch (e) {
-        return res.status(500).json({ msg: "Request error" });
+        return res.status(500).json({ msg: "Internal Server Error" });
     }
 });
 
