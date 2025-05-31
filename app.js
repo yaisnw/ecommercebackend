@@ -33,7 +33,7 @@ app.post('/login', async (req, res) => {
       return res.status(400).json({ msg: 'Username and password are required.' });
     }
     const user = await accountsQuery.getOneByUsername(username);
-
+    console.log('Found user:', user);
     if (!user) {
       return res.status(401).json({ msg: 'User not found' });
     }
